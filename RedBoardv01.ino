@@ -25,6 +25,16 @@ uint8_t prevbuttons = 0;
 
 //AN: bmod = brightness modifier, 0 to 100
 
+//remote buttons
+#define L6 1<<0
+#define L5 1<<1
+#define L4 1<<2
+#define LT 1<<3
+#define R3 1<<4
+#define R2 1<<5
+#define R1 1<<6
+#define RT 1<<7
+
 /////////////////////////////////////////////////////////////////////
 //Variables. Please igmore the terrible globalness
 uint32_t dttimer = 0; 
@@ -192,22 +202,21 @@ void setOsc(rgb24_t colour, uint8_t p, float bm) {
 //Process a valid radio message
 void process() {
   //Check the button states vs previous
-  if (radioMessage.type < 120 || radioMessage.type > 124) {
+  if (radioMessage.type <= 5) {
     uint8_t buttons = radioMessage.d4;
     //light button has been pressed
     //L6
-    if (((buttons & 0x20) >> 5) & !((prevbuttons & 0x20) >> 5)) {
-      setFade(colours[robots[latestValid.robotID]], 40, (buttons & 0x80 ? .5 : 1));
+    if (((buttons & L6)) && !((prevbuttons & L6))) {
+      setFade(colours[robots[radioMessage.robotID]], 40, (buttons & LT ? .5 : 1));
     }
     //L5
-    if ((buttons & 0x10) & !(prevbuttons & 0x10)) {
-      setOsc(colours[robots[latestValid.robotID]], 80, (buttons & 0x80 ? .5 : 1));
+    if ((buttons & L5) && !(prevbuttons & L5)) {
+      setOsc(colours[robots[radioMessage.robotID]], 80, (buttons & LT ? .5 : 1));
     }
     //L4
-    if ((buttons & 0x08) & !(prevbuttons & 0x08)) {
-      setFade(colours[0], 40, (buttons & 0x80 ? .5 : 1));
+    if ((buttons & L4) && !(prevbuttons & L4)) {
+      setFade(colours[0], 40, (buttons & LT ? .5 : 1));
     }
-    prevbuttons = buttons;
   }
   else {
     if (radioMessage.type == 120) {
